@@ -221,7 +221,7 @@ static NSString *dataCallbackId = nil;
             [_starIoExtManager.lock lock];
         }
 
-        BOOL printResult = [StarIOPlugin_Communication sendCommandsDoNotCheckCondition:commands port:port];
+        BOOL printResult = [StarIOPlugin_Communication sendCommands:commands port:port];
 
         if (_starIoExtManager != nil) {
             [_starIoExtManager.lock unlock];

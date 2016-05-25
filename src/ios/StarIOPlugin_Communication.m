@@ -77,7 +77,12 @@
         title   = @"Printer Error";
         message = @"Write port timed out (PortException)";
     }
-    
+    @finally {
+        if (port != nil) {
+            [SMPort releasePort:port];
+        }
+    }
+
     return result;
 }
 
