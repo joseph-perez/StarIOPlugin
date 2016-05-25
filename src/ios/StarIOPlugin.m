@@ -149,7 +149,7 @@ static NSString *dataCallbackId = nil;
         }
         
         if ([portType isEqualToString:@"All"] || [portType isEqualToString:@"LAN"]) {
-            NSArray *lanPortInfoArray = [SMPort searchPrinter:@"LAN:"];
+            NSArray *lanPortInfoArray = [SMPort searchPrinter:@"TCP:"];
             for (PortInfo *p in lanPortInfoArray) {
                 [info addObject:[self portInfoToDictionary:p]];
             }
@@ -214,19 +214,15 @@ static NSString *dataCallbackId = nil;
         } else {
             port = [_starIoExtManager port];
         }
-        
-        [commands appendBytes:"\x1b\x1d\x61\x01" length:sizeof("\x1b\x1d\x61\x01") - 1];    // Alignment (Center)
-        
+
         [commands appendData:[content dataUsingEncoding:NSASCIIStringEncoding]];
-        
-        [commands appendBytes:"\x1b\x64\x03" length:sizeof("\x1b\x64\x03") - 1];    // CutPaper(Feed&Partial)
-        
+
         if (_starIoExtManager != nil) {
             [_starIoExtManager.lock lock];
         }
-        
-        BOOL printResult = [StarIOPlugin_Communication sendCommands:commands port:port];
-        
+
+        BOOL printResult = [StarIOPlugin_Communication sendCommandsDoNotCheckCondition:commands port:port];
+
         if (_starIoExtManager != nil) {
             [_starIoExtManager.lock unlock];
         }
