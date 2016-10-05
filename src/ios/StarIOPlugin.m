@@ -213,7 +213,7 @@ static NSString *dataCallbackId = nil;
         if (command.arguments.count > 0) {
             portName = [command.arguments objectAtIndex:0];
             base64 = [command.arguments objectAtIndex:1];
-            maxWidth = [[command.arguments objectAtIndex:2] intValue];
+            maxWidth = 600;
         }
         
         if (_starIoExtManager == nil || _starIoExtManager.port == nil) {
@@ -245,7 +245,7 @@ static NSString *dataCallbackId = nil;
         // [starbitmap release];
         // [rasterDoc release];
         // [image release];
-        //[imageData release];
+//        [imageData release];
         
         if (_starIoExtManager != nil) {
             [_starIoExtManager.lock lock];
