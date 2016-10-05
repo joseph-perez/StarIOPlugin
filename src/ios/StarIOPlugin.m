@@ -245,7 +245,7 @@ static NSString *dataCallbackId = nil;
         // [starbitmap release];
         // [rasterDoc release];
         // [image release];
-        [imageData release];
+        //[imageData release];
         
         if (_starIoExtManager != nil) {
             [_starIoExtManager.lock lock];
