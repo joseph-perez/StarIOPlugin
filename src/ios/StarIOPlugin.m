@@ -30,6 +30,8 @@
 #import "StarIOPlugin.h"
 #import "StarIOPlugin_JS.h"
 #import "StarIOPlugin_Communication.h"
+#import "RasterDocument.h"
+#import "StarBitmap.h"
 
 @implementation StarIOPlugin
 
@@ -202,6 +204,78 @@ static NSString *dataCallbackId = nil;
     [result setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:result callbackId:dataCallbackId];
 }
+
+
+
+
+
+- (void)printImage:(CDVInvokedUrlCommand *)command {
+    NSLog(@"printing image");
+    [self.commandDelegate runInBackground:^{
+        NSString *portName = nil;
+        NSString *base64 = nil;
+        int maxWidth = 0;
+        SMPort *port = nil;
+        
+        if (command.arguments.count > 0) {
+            portName = [command.arguments objectAtIndex:0];
+            base64 = [command.arguments objectAtIndex:1];
+            maxWidth = 600;
+        }
+        
+        if (_starIoExtManager == nil || _starIoExtManager.port == nil) {
+            port = [SMPort getPort:portName :@"" :10000];
+        } else {
+            port = [_starIoExtManager port];
+        }
+        
+        NSData* imageData = [[NSData alloc] initWithBase64EncodedString:base64 options:0];
+        
+        UIImage* image = [UIImage imageWithData:imageData];
+        
+        RasterDocument *rasterDoc = [[RasterDocument alloc] initWithDefaults:RasSpeed_Medium endOfPageBehaviour:RasPageEndMode_FeedAndFullCut endOfDocumentBahaviour:RasPageEndMode_FeedAndFullCut topMargin:RasTopMargin_Standard pageLength:0 leftMargin:0 rightMargin:0];
+        
+        StarBitmap *starbitmap = [[StarBitmap alloc] initWithUIImage:image :maxWidth :false];
+        
+        NSMutableData *commandsToPrint = [[NSMutableData alloc] init];
+        
+        NSData *shortcommand = [rasterDoc BeginDocumentCommandData];
+        
+        [commandsToPrint appendData:shortcommand];
+        
+        shortcommand = [starbitmap getImageDataForPrinting:YES]; // try NO
+        [commandsToPrint appendData:shortcommand];
+        
+        shortcommand = [rasterDoc EndDocumentCommandData];
+        [commandsToPrint appendData:shortcommand];
+        
+        // [starbitmap release];
+        // [rasterDoc release];
+        // [image release];
+//        [imageData release];
+        
+        if (_starIoExtManager != nil) {
+            [_starIoExtManager.lock lock];
+        }
+        
+        BOOL printResult = [StarIOPlugin_Communication sendCommands:commandsToPrint port:port];
+        
+        // [commandsToPrint release];
+        
+        if (_starIoExtManager != nil) {
+            [_starIoExtManager.lock unlock];
+        }
+        
+        CDVPluginResult	*result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:printResult];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    }];
+}
+
+
+
+
+
+
 
 - (void)printReceipt:(CDVInvokedUrlCommand *)command {
     NSLog(@"printing receipt");
