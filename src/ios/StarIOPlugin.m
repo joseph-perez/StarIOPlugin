@@ -99,7 +99,7 @@ static NSString *dataCallbackId = nil;
         CDVPluginResult	*result = nil;
         StarPrinterStatus_2 status;
         SMPort *port = nil;
-        
+
         if (command.arguments.count > 0) {
             portName = [command.arguments objectAtIndex:0];
         }
@@ -118,12 +118,12 @@ static NSString *dataCallbackId = nil;
         @catch (PortException *exception) {
             NSLog(@"Port exception");
         }
-        @finally {        
+        @finally {
             if (port != nil) {
                 [SMPort releasePort:port];
             }
         }
-        
+
         NSLog(@"Sending status result");
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
@@ -133,13 +133,13 @@ static NSString *dataCallbackId = nil;
     NSLog(@"Finding ports");
     [self.commandDelegate runInBackground:^{
         NSString *portType = @"All";
-        
+
         if (command.arguments.count > 0) {
             portType = [command.arguments objectAtIndex:0];
         }
-        
+
         NSMutableArray *info = [[NSMutableArray alloc] init];
-        
+
         //TODO - run in background
         if ([portType isEqualToString:@"All"] || [portType isEqualToString:@"Bluetooth"]) {
             NSArray *btPortInfoArray = [SMPort searchPrinter:@"BT:"];
@@ -147,24 +147,31 @@ static NSString *dataCallbackId = nil;
                 [info addObject:[self portInfoToDictionary:p]];
             }
         }
-        
+
+				if ([portType isEqualToString:@"All"] || [portType isEqualToString:@"BluetoothLE"]) {
+            NSArray *btPortInfoArray = [SMPort searchPrinter:@"BLE:"];
+            for (PortInfo *p in btPortInfoArray) {
+                [info addObject:[self portInfoToDictionary:p]];
+            }
+        }
+
         if ([portType isEqualToString:@"All"] || [portType isEqualToString:@"LAN"]) {
             NSArray *lanPortInfoArray = [SMPort searchPrinter:@"TCP:"];
             for (PortInfo *p in lanPortInfoArray) {
                 [info addObject:[self portInfoToDictionary:p]];
             }
         }
-        
+
         if ([portType isEqualToString:@"All"] || [portType isEqualToString:@"USB"]) {
             NSArray *usbPortInfoArray = [SMPort searchPrinter:@"USB:"];
             for (PortInfo *p in usbPortInfoArray) {
                 [info addObject:[self portInfoToDictionary:p]];
             }
         }
-        
-        
+
+
         CDVPluginResult	*result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:info];
-     
+
         NSLog(@"Sending ports result");
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
@@ -172,24 +179,24 @@ static NSString *dataCallbackId = nil;
 
 - (void)connect:(CDVInvokedUrlCommand *)command {
     NSString *portName = nil;
-    
+
     if (command.arguments.count > 0) {
         portName = [command.arguments objectAtIndex:0];
     }
-    
+
     if (_starIoExtManager == nil) {
         _starIoExtManager = [[StarIoExtManager alloc] initWithType:StarIoExtManagerTypeWithBarcodeReader
                                                           portName:portName
                                                       portSettings:@""
                                                    ioTimeoutMillis:10000];
-        
+
         _starIoExtManager.delegate = self;
     }
-    
+
     if (_starIoExtManager.port != nil) {
         [_starIoExtManager disconnect];
     }
-    
+
     dataCallbackId = command.callbackId;
     CDVPluginResult	*result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:[_starIoExtManager connect]];
     [result setKeepCallbackAsBool:YES];
@@ -203,12 +210,12 @@ static NSString *dataCallbackId = nil;
         NSString *portName = nil;
         NSString *content = nil;
         SMPort *port = nil;
-        
+
         if (command.arguments.count > 0) {
             portName = [command.arguments objectAtIndex:0];
             content = [command.arguments objectAtIndex:1];
         }
-        
+
         if (_starIoExtManager == nil || _starIoExtManager.port == nil) {
             port = [SMPort getPort:portName :@"" :10000];
         } else {
@@ -226,7 +233,7 @@ static NSString *dataCallbackId = nil;
         if (_starIoExtManager != nil) {
             [_starIoExtManager.lock unlock];
         }
-        
+
         CDVPluginResult	*result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:printResult];
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
@@ -234,35 +241,35 @@ static NSString *dataCallbackId = nil;
 
 -(void)openCashDrawer:(CDVInvokedUrlCommand *)command {
     NSLog(@"opening cash drawer");
-    
+
     [self.commandDelegate runInBackground:^{
         NSString *portName = nil;
         SMPort *port = nil;
-        
+
         if (command.arguments.count > 0) {
             portName = [command.arguments objectAtIndex:0];
         }
-        
+
         if (_starIoExtManager == nil || _starIoExtManager.port == nil) {
             port = [SMPort getPort:portName :@"" :10000];
         } else {
             port = [_starIoExtManager port];
         }
-        
+
         unsigned char openCashDrawerCommand = 0x07;
-        
+
         NSData *commandData = [NSData dataWithBytes:&openCashDrawerCommand length:1];
-        
+
         if (_starIoExtManager != nil) {
             [_starIoExtManager.lock lock];
         }
-        
+
         BOOL printResult = [StarIOPlugin_Communication sendCommands:commandData port:port];
-        
+
         if (_starIoExtManager != nil) {
             [_starIoExtManager.lock unlock];
         }
-        
+
         CDVPluginResult	*result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:printResult];
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
@@ -321,12 +328,12 @@ static NSString *dataCallbackId = nil;
     NSLog(@"barcodeDataReceive");
 
     NSMutableString *text = [NSMutableString stringWithString:@""];
-    
+
     const uint8_t *p = [data bytes];
-    
+
     for (int i = 0; i < data.length; i++) {
         uint8_t ch = *(p + i);
-        
+
         if(ch >= 0x20 && ch <= 0x7f) {
             [text appendFormat:@"%c", (char) ch];
         }
@@ -334,7 +341,7 @@ static NSString *dataCallbackId = nil;
 //            text = [NSMutableString stringWithString:@""];
         }
     }
-    
+
     [self sendData:@"barcodeDataReceive" data:text];
 }
 
