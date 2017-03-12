@@ -216,6 +216,7 @@ static NSString *dataCallbackId = nil;
         NSString *base64 = nil;
         int maxWidth = 0;
         SMPort *port = nil;
+				BOOL releasePort = false;
 
         if (command.arguments.count > 0) {
             portName = [command.arguments objectAtIndex:0];
@@ -225,6 +226,7 @@ static NSString *dataCallbackId = nil;
 
         if (_starIoExtManager == nil || _starIoExtManager.port == nil) {
             port = [SMPort getPort:portName :@"" :10000];
+						releasePort = true;
         } else {
             port = [_starIoExtManager port];
         }
@@ -258,7 +260,16 @@ static NSString *dataCallbackId = nil;
             [_starIoExtManager.lock lock];
         }
 
-        BOOL printResult = [StarIOPlugin_Communication sendCommands:commandsToPrint port:port];
+        BOOL printResult = false;
+
+				@try {
+					printResult = [StarIOPlugin_Communication sendCommands:commandsToPrint port:port];
+				}
+				@finally {
+		        if (port != nil && releasePort) {
+		            [SMPort releasePort:port];
+		        }
+		    }
 
         // [commandsToPrint release];
 
@@ -284,6 +295,7 @@ static NSString *dataCallbackId = nil;
         NSString *portName = nil;
         NSString *content = nil;
         SMPort *port = nil;
+				BOOL releasePort = false;
 
         if (command.arguments.count > 0) {
             portName = [command.arguments objectAtIndex:0];
@@ -292,7 +304,9 @@ static NSString *dataCallbackId = nil;
 
         if (_starIoExtManager == nil || _starIoExtManager.port == nil) {
             port = [SMPort getPort:portName :@"" :10000];
+						releasePort = true;
         } else {
+						NSLog(@"starIoExtManager != nil");
             port = [_starIoExtManager port];
         }
 
@@ -302,7 +316,16 @@ static NSString *dataCallbackId = nil;
             [_starIoExtManager.lock lock];
         }
 
-        BOOL printResult = [StarIOPlugin_Communication sendCommands:commands port:port];
+        BOOL printResult = false;
+
+				@try {
+					printResult = [StarIOPlugin_Communication sendCommands:commands port:port];
+				}
+				@finally {
+		        if (port != nil && releasePort) {
+		            [SMPort releasePort:port];
+		        }
+		    }
 
         if (_starIoExtManager != nil) {
             [_starIoExtManager.lock unlock];
@@ -319,6 +342,7 @@ static NSString *dataCallbackId = nil;
     [self.commandDelegate runInBackground:^{
         NSString *portName = nil;
         SMPort *port = nil;
+				BOOL releasePort = false;
 
         if (command.arguments.count > 0) {
             portName = [command.arguments objectAtIndex:0];
@@ -326,6 +350,7 @@ static NSString *dataCallbackId = nil;
 
         if (_starIoExtManager == nil || _starIoExtManager.port == nil) {
             port = [SMPort getPort:portName :@"" :10000];
+						releasePort = true;
         } else {
             port = [_starIoExtManager port];
         }
@@ -338,7 +363,16 @@ static NSString *dataCallbackId = nil;
             [_starIoExtManager.lock lock];
         }
 
-        BOOL printResult = [StarIOPlugin_Communication sendCommands:commandData port:port];
+        BOOL printResult;
+
+				@try {
+					printResult = [StarIOPlugin_Communication sendCommands:commandData port:port];
+				}
+				@finally {
+		        if (port != nil && releasePort) {
+		            [SMPort releasePort:port];
+		        }
+		    }
 
         if (_starIoExtManager != nil) {
             [_starIoExtManager.lock unlock];
