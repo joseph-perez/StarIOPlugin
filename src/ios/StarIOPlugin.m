@@ -142,34 +142,42 @@ static NSString *dataCallbackId = nil;
 
         NSMutableArray *info = [[NSMutableArray alloc] init];
 
-        //TODO - run in background
-        if ([portType isEqualToString:@"All"] || [portType isEqualToString:@"Bluetooth"]) {
-            NSArray *btPortInfoArray = [SMPort searchPrinter:@"BT:"];
-            for (PortInfo *p in btPortInfoArray) {
-                [info addObject:[self portInfoToDictionary:p]];
-            }
-        }
+				//TODO - run in background
+				if ([portType isEqualToString:@"All"]) {
+					NSArray *allPortInfoArray = [SMPort searchPrinter];
+					for (PortInfo *p in allPortInfoArray) {
+							[info addObject:[self portInfoToDictionary:p]];
+					}
+				}
+				else {
+	        if ([portType isEqualToString:@"Bluetooth"]) {
+	            NSArray *btPortInfoArray = [SMPort searchPrinter:@"BT:"];
+	            for (PortInfo *p in btPortInfoArray) {
+	                [info addObject:[self portInfoToDictionary:p]];
+	            }
+	        }
 
-				if ([portType isEqualToString:@"All"] || [portType isEqualToString:@"BluetoothLE"]) {
-            NSArray *btPortInfoArray = [SMPort searchPrinter:@"BLE:"];
-            for (PortInfo *p in btPortInfoArray) {
-                [info addObject:[self portInfoToDictionary:p]];
-            }
-        }
+					if ([portType isEqualToString:@"BluetoothLE"]) {
+	            NSArray *btPortInfoArray = [SMPort searchPrinter:@"BLE:"];
+	            for (PortInfo *p in btPortInfoArray) {
+	                [info addObject:[self portInfoToDictionary:p]];
+	            }
+	        }
 
-        if ([portType isEqualToString:@"All"] || [portType isEqualToString:@"LAN"]) {
-            NSArray *lanPortInfoArray = [SMPort searchPrinter:@"TCP:"];
-            for (PortInfo *p in lanPortInfoArray) {
-                [info addObject:[self portInfoToDictionary:p]];
-            }
-        }
+	        if ([portType isEqualToString:@"LAN"]) {
+	            NSArray *lanPortInfoArray = [SMPort searchPrinter:@"TCP:"];
+	            for (PortInfo *p in lanPortInfoArray) {
+	                [info addObject:[self portInfoToDictionary:p]];
+	            }
+	        }
 
-        if ([portType isEqualToString:@"All"] || [portType isEqualToString:@"USB"]) {
-            NSArray *usbPortInfoArray = [SMPort searchPrinter:@"USB:"];
-            for (PortInfo *p in usbPortInfoArray) {
-                [info addObject:[self portInfoToDictionary:p]];
-            }
-        }
+	        if ([portType isEqualToString:@"USB"]) {
+	            NSArray *usbPortInfoArray = [SMPort searchPrinter:@"USB:"];
+	            for (PortInfo *p in usbPortInfoArray) {
+	                [info addObject:[self portInfoToDictionary:p]];
+	            }
+	        }
+				}
 
 
         CDVPluginResult	*result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:info];
