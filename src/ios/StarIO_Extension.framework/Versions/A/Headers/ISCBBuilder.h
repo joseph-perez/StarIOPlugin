@@ -1,4 +1,4 @@
-﻿//
+//
 //  ISCBBuilder.h
 //  StarIO_Extension
 //
@@ -164,7 +164,16 @@ typedef NS_ENUM(NSUInteger, SCBBarcodeWidth) {
     SCBBarcodeWidthMode6,
     SCBBarcodeWidthMode7,
     SCBBarcodeWidthMode8,
-    SCBBarcodeWidthMode9
+    SCBBarcodeWidthMode9,
+    SCBBarcodeWidthExtMode1,
+    SCBBarcodeWidthExtMode2,
+    SCBBarcodeWidthExtMode3,
+    SCBBarcodeWidthExtMode4,
+    SCBBarcodeWidthExtMode5,
+    SCBBarcodeWidthExtMode6,
+    SCBBarcodeWidthExtMode7,
+    SCBBarcodeWidthExtMode8,
+    SCBBarcodeWidthExtMode9
 };
 
 #pragma mark - Pdf417
@@ -202,6 +211,33 @@ typedef NS_ENUM(NSInteger, SCBBitmapConverterRotation) {
     SCBBitmapConverterRotationRight90,
     SCBBitmapConverterRotationLeft90,
     SCBBitmapConverterRotationRotate180
+};
+
+#pragma mark - BlackMark
+
+typedef NS_ENUM(NSInteger, SCBBlackMarkType) {
+    SCBBlackMarkTypeInvalid,
+    SCBBlackMarkTypeValid,
+    SCBBlackMarkTypeValidWithDetection
+};
+
+#pragma mark - Printable Area
+
+typedef NS_ENUM(NSInteger, SCBPrintableAreaType) {
+    SCBPrintableAreaTypeStandard,
+    SCBPrintableAreaTypeType1,
+    SCBPrintableAreaTypeType2,
+    SCBPrintableAreaTypeType3,
+    SCBPrintableAreaTypeType4
+};
+
+#pragma mark - CJK Unified Ideograph Font
+
+typedef NS_ENUM(NSInteger, SCBCjkUnifiedIdeographFont) {
+    SCBCjkUnifiedIdeographFontJapanese           = 1,
+    SCBCjkUnifiedIdeographFontSimplifiedChinese  = 2,
+    SCBCjkUnifiedIdeographFontTraditionalChinese = 3,
+    SCBCjkUnifiedIdeographFontHangul             = 4
 };
 
 @interface ISCBBuilder : NSObject
@@ -367,6 +403,10 @@ typedef NS_ENUM(NSInteger, SCBBitmapConverterRotation) {
                           length:(NSUInteger)length
                         position:(SCBAlignmentPosition)position;
 
+#pragma mark - HorizontalTabPosition
+
+- (void)appendHorizontalTabPosition:(NSArray<NSNumber *> *)positions;
+
 #pragma mark - CutPaper
 
 - (void)appendCutPaper:(SCBCutPaperAction)action;
@@ -384,6 +424,12 @@ typedef NS_ENUM(NSInteger, SCBBitmapConverterRotation) {
 
 - (void)appendSound:(SCBSoundChannel)channel
              repeat:(NSInteger)repeat;
+
+- (void)appendSound:(SCBSoundChannel)channel
+             repeat:(NSInteger)repeat
+          driveTime:(NSInteger)driveTime
+          delayTime:(NSInteger)delayTime;
+
 
 #pragma mark - Barcode
 
@@ -583,5 +629,32 @@ typedef NS_ENUM(NSInteger, SCBBitmapConverterRotation) {
 - (void)appendBitmapWithAlignment:(UIImage *)image
                         diffusion:(BOOL)diffusion
                          position:(SCBAlignmentPosition)position;
+
+#pragma mark - BlackMark
+
+- (void)appendBlackMark:(SCBBlackMarkType)type;
+
+#pragma mark - Top Margin
+
+- (void)appendTopMargin:(NSInteger)topMargin;
+
+#pragma mark - Printable Area
+
+- (void)appendPrintableArea:(SCBPrintableAreaType)type;
+
+#pragma mark - CJK Unified Ideograph Font
+
+- (void)appendCjkUnifiedIdeographFont:(NSArray<NSNumber *> *)fonts;
+
+#pragma mark - PageMode
+
+- (void)beginPageMode:(CGRect)rect
+             rotation:(SCBBitmapConverterRotation)rotation;
+
+- (void)endPageMode;
+
+- (void)appendPageModeVerticalAbsolutePosition:(NSInteger)position;
+
+- (void)appendPageModeRotation:(SCBBitmapConverterRotation)rotation;
 
 @end

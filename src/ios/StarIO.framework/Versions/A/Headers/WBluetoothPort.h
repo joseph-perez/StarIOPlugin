@@ -25,16 +25,17 @@
     NSString *portSettings_;
     u_int32_t timeout_;
     
-    EAAccessory* _selectedAccessory;
-    EASession* _session;
-    
-    NSMutableData *_writeData;
-    NSMutableData *_readData;
+    EAAccessory *_selectedAccessory;
+    EASession *_session;
 }
+
 @property (readonly, getter = isConnected) BOOL connected;
 @property (readwrite) u_int32_t endCheckedBlockTimeoutMillis;
 
 @property (retain, readonly) NSString *firmwareInformation;
+
+@property(retain, nonatomic) NSString *name;
+@property(retain, nonatomic) NSString *serialNumber;
 
 - (id)initWithPortName:(NSString *)portName portSettings:(NSString *)portSettings timeout:(u_int32_t)timeout;
 - (BOOL)open;

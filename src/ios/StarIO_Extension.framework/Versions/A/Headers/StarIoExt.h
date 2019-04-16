@@ -8,7 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Internal/StarIoExtResultCode.h"
+
 #import "ISCBBuilder.h"
+#import "ISDCBBuilder.h"
+#import "ISMCBBuilder.h"
+
+#import "ISCPConnectParser.h"
 
 typedef NS_ENUM(NSInteger, StarIoExtEmulation) {     // Don't insert!
     StarIoExtEmulationNone = 0,
@@ -17,7 +23,8 @@ typedef NS_ENUM(NSInteger, StarIoExtEmulation) {     // Don't insert!
     StarIoExtEmulationStarGraphic,
     StarIoExtEmulationEscPos,
     StarIoExtEmulationEscPosMobile,
-    StarIoExtEmulationStarDotImpact
+    StarIoExtEmulationStarDotImpact,
+    StarIoExtEmulationStarPRNTL
 };
 
 typedef NS_ENUM(NSInteger, StarIoExtCharacterCode) {     // Don't insert!
@@ -28,14 +35,44 @@ typedef NS_ENUM(NSInteger, StarIoExtCharacterCode) {     // Don't insert!
     StarIoExtCharacterCodeTraditionalChinese
 };
 
+typedef NS_ENUM(NSInteger, StarIoExtBcrModel) {     // Don't insert!
+    StarIoExtBcrModelNone = 0,
+    StarIoExtBcrModelPOP1,
+    StarIoExtBcrModelDS9208
+};
+
+typedef NS_ENUM(NSInteger, StarIoExtDisplayModel) {     // Don't insert!
+    StarIoExtDisplayModelNone = 0,
+    StarIoExtDisplayModelSCD222
+};
+
+typedef NS_ENUM(NSUInteger, StarIoExtMelodySpeakerModel) {     // Don't insert!
+    StarIoExtMelodySpeakerModelNone = 0,
+    StarIoExtMelodySpeakerModelMCS10,
+    StarIoExtMelodySpeakerModelFVP10
+};
+
 @interface StarIoExt : NSObject
 
-// Generic.
+#pragma mark - Generic
 
 + (NSString *)description;
 
-// Command Builder.
+#pragma mark - Builder
 
 + (ISCBBuilder *)createCommandBuilder:(StarIoExtEmulation)emulation;
+
++ (ISDCBBuilder *)createDisplayCommandBuilder:(StarIoExtDisplayModel)model;
+
++ (ISMCBBuilder *)createMelodySpeakerCommandBuilder:(StarIoExtMelodySpeakerModel)model;
+
+#pragma mark - Parser
+
++ (ISCPConnectParser *)createBcrConnectParser:(StarIoExtBcrModel)model;
+
++ (ISCPConnectParser *)createDisplayConnectParser:(StarIoExtDisplayModel)model;
+
++ (ISCPConnectParser *)createMelodySpeakerConnectParser:(StarIoExtMelodySpeakerModel)model
+                                                  error:(NSError **)error;
 
 @end
